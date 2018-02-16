@@ -1,15 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import csv
 
+threshold=3.5
 
-def outliers_z_score(ys):
-    threshold = 3
-    mean_y = np.mean(ys)
-    stdev_y = np.std(ys)
-    z_scores = [(y - mean_y) / stdev_y for y in ys]
-    return np.where(np.abs(z_scores) > threshold)
+def outliers_modified_z_score(data):
+    median_d = np.median(data)
+    medianArray=[]
+    for d in data:
+        medianArray.append(np.abs(d - median_d))
+    median_absolute_deviation_d = np.median(medianArray)
+    modified_z_scores = [0.6745 * (d - median_d) / median_absolute_deviation_d
+                         for d in data]
+    return np.where(np.abs(modified_z_scores) > threshold)
     
 # Importing the dataset    
 data = pd.read_csv('C:\\Users\\himverma\\AnacondaProjects\\ZScore\\xclaraOriginal.csv')
@@ -20,10 +23,11 @@ data.head()
 row1 = data['V1'].values
 x = np.array(row1)
 
-outlierLocationArray = outliers_z_score(x)
+outlierLocationArray = outliers_modified_z_score(x)
 outliersLocation=[]
 for index, location in enumerate(outlierLocationArray[0]):
     outliersLocation.append(location+1)
+    
 print("OutLiner Index: ", outliersLocation)
 
 #Writing to output CSV File
